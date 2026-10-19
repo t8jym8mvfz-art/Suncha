@@ -1,0 +1,14 @@
+APPLICATION CONSENTEMENT - SUNCHA (version hors ligne)
+
+Fichiers à mettre en ligne (tous ensemble, à la racine du dépôt) :
+index.html, sw.js, manifest.webmanifest, pdf-lib.min.js,
+icon-192.png, icon-512.png, apple-touch-icon.png
+
+1) Crée un dépôt GitHub public, envoie ces 7 fichiers, active GitHub Pages (Settings > Pages > main / root).
+2) Ouvre l'adresse obtenue dans Safari sur le téléphone, avec du réseau.
+3) Partager > Sur l'écran d'accueil.
+4) Ouvre l'app depuis l'icône, une première fois avec du réseau.
+5) Teste en mode avion.
+
+Les fiches clients restent sur le téléphone, dans l'app de l'écran d'accueil.
+Utilise toujours cette icône (pas Safari).
