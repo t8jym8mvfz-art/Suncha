@@ -467,6 +467,25 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border:0;border-radiu
 .bkl b{display:block;font-size:15px}.bkl span#bkLast{display:block;font-size:14px;color:var(--mut);margin-top:2px}
 .bkl.old span#bkLast{color:var(--err)}
 :root[data-pal="suncha"]{color-scheme:dark;--bg:#141517;--card:#1f2124;--fill:#2a2c30;--tx:#EEE9E0;--mut:#9B958C;--bd:rgba(217,165,20,.22);--gold:#D9A514;--hi:#F2CF6B;--acc2:#C9CED8;--on:#17181A;--gold2:#C9CED8;--err:#F08A7E;--bar:rgba(20,21,23,.7);--aura:.5} .hd img.hdlogo{width:54px;height:54px;border-radius:50%;flex:none;box-shadow:0 0 0 1px var(--bd),0 0 22px color-mix(in srgb,var(--gold) 40%,transparent);animation:halo 4s ease-in-out infinite} @keyframes halo{0%,100%{box-shadow:0 0 0 1px var(--bd),0 0 14px color-mix(in srgb,var(--gold) 25%,transparent)}50%{box-shadow:0 0 0 1px var(--bd),0 0 30px color-mix(in srgb,var(--gold) 55%,transparent)}} :root.calm .hd img.hdlogo{animation:none}
+
+.ki .ar{flex:none;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;background:var(--fill);color:var(--mut);transition:background .2s,color .2s}
+.ki .ar.arm{background:color-mix(in srgb,var(--err) 20%,transparent);color:var(--err)}
+.ksw{display:flex;align-items:center;gap:10px}.ksw svg{width:20px;height:20px;color:var(--mut);flex:none}.ksw input{flex:1;min-width:0}
+.kah button{background:none;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;padding:0;display:flex;align-items:center;gap:6px}
+.kah span{color:var(--mut)}.kah i{font-style:normal;display:inline-block;transition:transform .25s;font-size:16px}
+.kah button[aria-expanded="true"] i{transform:rotate(90deg)}
+#kArch .ki .kt b{opacity:.75}
+#kArch .ki .acts{display:flex;gap:6px;flex:none}
+#kArch .ki .acts button{font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;background:var(--fill);color:var(--hi)}
+#kArch .ki .acts .del{color:var(--mut)}#kArch .ki .acts .del.arm{color:var(--err);background:color-mix(in srgb,var(--err) 18%,transparent)}
+.kr{padding:10px 0;border-bottom:.5px solid var(--bd)}.kr:last-child{border-bottom:0}
+.kr .kh{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--hi);margin-bottom:6px}
+.kuse{display:flex;gap:10px;align-items:center;width:100%;padding:9px 0;background:none;color:var(--tx);text-align:left;border-top:.5px solid var(--bd)}
+.kuse:first-of-type{border-top:0}
+.kuse b{display:block;font-size:15px}.kuse small{display:block;font-size:12px;color:var(--mut);overflow-wrap:anywhere}
+.kuse .dt{flex:none;font-size:12px;font-weight:700;padding:4px 9px;border-radius:999px;background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--hi)}
+.kuse>span{flex:1;min-width:0}.kuse i{font-style:normal;color:var(--mut)}
+.pill.arc{background:var(--fill);color:var(--mut)}
 </style>
 </head>
 <body>
@@ -620,9 +639,12 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border:0;border-radiu
 <div class="f"><label class="l">Référence *</label><input type="text" id="kRef" placeholder="Ex. Dynamic Triple Black, RL 9…" autocomplete="off"></div>
 <div class="row f"><div><label class="l">N° de lot *</label><input type="text" id="kLot" autocomplete="off"></div><div><label class="l">Péremption</label><input type="date" id="kExp"></div></div>
 <div class="f"><button class="pri" id="kAdd" type="button">Ajouter au stock</button></div></div>
-<h2>Encres</h2><div class="card" id="kEnc"></div>
-<h2>Aiguilles</h2><div class="card" id="kAig"></div>
-<h2>Autres produits</h2><div class="card" id="kOth"></div>
+<h2>Encres</h2><div class="card kcat" id="kEnc"></div>
+<h2>Aiguilles</h2><div class="card kcat" id="kAig"></div>
+<h2>Autres produits</h2><div class="card kcat" id="kOth"></div>
+<h2>Retrouver un lot</h2><div class="card"><div class="f ksw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input type="text" inputmode="search" id="kSearch" placeholder="N° de lot ou référence…" autocomplete="off" enterkeyhint="search"></div><div id="kRes"></div></div>
+<h2 class="kah"><button type="button" id="kArchT" aria-expanded="false">Archives <span id="kArchN"></span><i>›</i></button></h2><div class="card" id="kArch" hidden></div>
+
 </div>
 <div id="s10" hidden>
 <button class="lnk tohome" type="button">‹ Accueil</button>
@@ -1221,15 +1243,18 @@ function expState(x){if(!x.exp)return['','Sans date'];const d=Math.round((pd(x.e
   if(d<0)return['bad','Périmé'];if(d<=60)return['soon','Expire dans '+d+' j'];return['ok','OK']}
 function paintKType(){$('kType').innerHTML=Object.entries(KT).map(([k,l])=>'<button class="dur" type="button" data-k="'+k+'" aria-pressed="'+(k===kType)+'">'+l+'</button>').join('');$('kType').querySelectorAll('.dur').forEach(b=>b.onclick=()=>{kType=b.dataset.k;paintKType()})}
 async function openStockRaw(){show(9);paintKType();await renderStock()}
-async function renderStock(){const K=(await allOf('stock')).sort((a,b)=>(a.exp||'9999').localeCompare(b.exp||'9999'));
-  const row=x=>{const[c,t]=expState(x);return '<div class="ki" data-id="'+esc(x.id)+'"><span class="kt"><b>'+esc(x.ref)+'</b><small>Lot '+esc(x.lot)+(x.exp?' · péremption '+esc(pd(x.exp).toLocaleDateString('fr-FR')):'')+'</small></span><span class="pill '+c+'">'+t+'</span><button class="x" type="button" aria-label="Retirer">×</button></div>'};
+async function renderStock(){const KA=await allOf('stock'),K=KA.filter(x=>!x.arch).sort((a,b)=>(a.exp||'9999').localeCompare(b.exp||'9999'));
+  const row=x=>{const[c,t]=expState(x);return '<div class="ki" data-id="'+esc(x.id)+'"><span class="kt"><b>'+esc(x.ref)+'</b><small>Lot '+esc(x.lot)+(x.exp?' · péremption '+esc(pd(x.exp).toLocaleDateString('fr-FR')):'')+'</small></span><span class="pill '+c+'">'+t+'</span><button class="ar" type="button">Épuisé</button></div>'};
   [['enc','kEnc'],['aig','kAig'],['oth','kOth']].forEach(([t,id])=>{const L=K.filter(x=>x.type===t);$(id).innerHTML=L.length?L.map(row).join(''):'<div class="empty2">Aucun produit.</div>'});
   const al=K.filter(x=>['bad','soon'].includes(expState(x)[0]));
   $('kAlert').innerHTML=al.length?'<div class="kal"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--err)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg><div><b>'+al.length+' produit'+(al.length>1?'s':'')+' à vérifier</b><span>'+esc(al.map(x=>x.ref+' ('+expState(x)[1].toLowerCase()+')').join(', '))+'</span></div></div>':'';
-  document.querySelectorAll('#s9 .ki').forEach(el=>{let arm=false;el.querySelector('.x').onclick=async()=>{const b=el.querySelector('.x');if(!arm){arm=true;b.textContent='Retirer ?';b.style.color='var(--err)';b.style.fontSize='13px';return}await delIn('stock',el.dataset.id);renderStock()}})}
+  document.querySelectorAll('#s9 .kcat .ki').forEach(el=>{let arm=false;const b=el.querySelector('.ar');b.onclick=async()=>{if(!arm){arm=true;b.textContent='Archiver ?';b.classList.add('arm');vib(8);setTimeout(()=>{arm=false;b.textContent='Épuisé';b.classList.remove('arm')},3500);return}
+    const x=KA.find(z=>z.id===el.dataset.id);if(!x)return;x.arch=new Date().toISOString();await putIn('stock',x);vib(14);await renderStock();
+    msg('',0,'<div>'+esc(x.ref)+' · lot '+esc(x.lot)+' archivé.</div><div style="margin-top:8px"><button class="lnk" id="kUndo" type="button" style="color:var(--gold);font-weight:600">Annuler</button></div>');$('kUndo').onclick=async()=>{delete x.arch;await putIn('stock',x);msg('Lot remis en stock.');renderStock()};setTimeout(()=>{if($('kUndo'))msg('')},6000)}});
+  renderArch(KA);kSearchRun()}
 $('kAdd').onclick=async()=>{const ref=$('kRef').value.trim(),lot=$('kLot').value.trim();if(!ref||!lot)return msg('Indique la référence et le numéro de lot.',1);
   await putIn('stock',{id:Date.now().toString(36),type:kType,ref,lot,exp:$('kExp').value||null});$('kRef').value='';$('kLot').value='';$('kExp').value='';await renderStock();msg('Produit ajouté au stock.')};
-async function fillPickers(){const K=await allOf('stock');
+async function fillPickers(){const K=(await allOf('stock')).filter(x=>!x.arch);
   const opt=(t,ph)=>'<option value="">'+ph+'</option>'+K.filter(x=>x.type===t).sort((a,b)=>a.ref.localeCompare(b.ref)).map(x=>{const[c,tt]=expState(x);return '<option value="'+esc(x.id)+'"'+(c==='bad'?' disabled':'')+'>'+esc(x.ref)+' · lot '+esc(x.lot)+(c==='bad'?' (périmé)':c==='soon'?' (expire bientôt)':'')+'</option>'}).join('');
   $('pkAig').innerHTML=opt('aig',K.some(x=>x.type==='aig')?'Choisir des aiguilles dans mon stock…':'Aucune aiguille en stock (ajoute-les dans Matériel)');
   $('pkEnc').innerHTML=opt('enc',K.some(x=>x.type==='enc')?'Ajouter une encre de mon stock…':'Aucune encre en stock (ajoute-les dans Matériel)');
@@ -1307,7 +1332,7 @@ Object.assign(ICO,{reg:'<path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 1
 function navWrap(k,raw){return function(...a){const f=()=>raw.apply(null,a);f.k=k;route(f);return raw.apply(this,a)}}
 window.openReg=navWrap('reg',openRegRaw);window.openStock=navWrap('stock',openStockRaw);
 (()=>{const ap=window.applyHome;window.applyHome=async function(){await ap();if($('s4').hidden)return;
-  const K=await allOf('stock'),al=K.filter(x=>['bad','soon'].includes(expState(x)[0])).length;
+  const K=(await allOf('stock')).filter(x=>!x.arch),al=K.filter(x=>['bad','soon'].includes(expState(x)[0])).length;
   const Fi=(await all().catch(()=>[])).filter(f=>f.id!=='__draft'),t=new Date(),m0=dk(new Date(t.getFullYear(),t.getMonth(),1));
   const ns=Fi.reduce((a,f)=>a+(f.seances||[]).filter(s=>frD(s.date)>=m0).length,0);
   const set=(k,sub,n)=>{const b=document.querySelector('#hTiles .tl[data-go="'+k+'"]');if(!b)return;b.querySelector('small').textContent=sub;if(n&&!b.querySelector('.n'))b.insertAdjacentHTML('beforeend','<span class="n">'+n+'</span>');b.onclick=()=>k==='reg'?openReg():openStock()};
@@ -1545,6 +1570,30 @@ $('bkFile').onchange=async()=>{const f=$('bkFile').files[0];if(!f)return;let B;
     }catch(e){console.error(e);msg('La restauration a échoué : '+(e&&e.message||e),1)}}};
 bkShow();
 new MutationObserver(()=>{if(!$('s7').hidden)bkShow()}).observe($('s7'),{attributes:true,attributeFilter:['hidden']});
+
+// ================= archives du stock =================
+let kArchOpen=false;
+function renderArch(KA){const A=KA.filter(x=>x.arch).sort((a,b)=>b.arch.localeCompare(a.arch));
+  $('kArchN').textContent=A.length?'('+A.length+')':'';$('kArchT').setAttribute('aria-expanded',kArchOpen);$('kArch').hidden=!kArchOpen;
+  $('kArch').innerHTML=A.length?A.map(x=>'<div class="ki" data-id="'+esc(x.id)+'"><span class="kt"><b>'+esc(x.ref)+'</b><small>'+esc(KT[x.type]||'')+' · lot '+esc(x.lot)+' · archivé le '+new Date(x.arch).toLocaleDateString('fr-FR')+'</small></span><span class="acts"><button type="button" class="rs">Remettre</button><button type="button" class="del" aria-label="Supprimer">×</button></span></div>').join(''):'<div class="empty2">Aucun lot archivé. Quand un lot est fini, touche « Épuisé » : il est rangé ici et reste traçable.</div>';
+  $('kArch').querySelectorAll('.ki').forEach(el=>{const x=A.find(z=>z.id===el.dataset.id);
+    el.querySelector('.rs').onclick=async()=>{delete x.arch;await putIn('stock',x);vib(10);msg('Lot remis en stock.');renderStock()};
+    let arm=false;const d=el.querySelector('.del');d.onclick=async()=>{if(!arm){arm=true;d.textContent='Supprimer ?';d.classList.add('arm');setTimeout(()=>{arm=false;d.textContent='×';d.classList.remove('arm')},3500);return}await delIn('stock',x.id);msg('Lot supprimé définitivement.');renderStock()}})}
+$('kArchT').onclick=()=>{kArchOpen=!kArchOpen;$('kArchT').setAttribute('aria-expanded',kArchOpen);$('kArch').hidden=!kArchOpen;vib(6)};
+const knorm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();
+let kST;async function kSearchRun(){const q=knorm($('kSearch').value),out=$('kRes');if(q.length<2){out.innerHTML='';return}
+  const [KA,Fi]=await Promise.all([allOf('stock'),all().catch(()=>[])]);
+  const P=KA.filter(x=>knorm(x.lot).includes(q)||knorm(x.ref).includes(q));
+  const terms=[q,...P.map(x=>knorm(x.lot))].filter((v,i,a)=>v&&a.indexOf(v)===i);
+  const U=[];Fi.filter(f=>f.id!=='__draft').forEach(f=>(f.seances||[]).forEach((se,i)=>{const hit=[];
+    [['aig','laig','Aiguilles'],['enc','lenc','Encre']].forEach(([r,l,lab])=>{const L=knorm(se[l]),R=knorm(se[r]);if(terms.some(t=>L.includes(t))||R.includes(q))hit.push(lab+' : '+(se[r]||'')+(se[l]?' · lot '+se[l]:''))});
+    if(hit.length)U.push({f,se,i,hit})}));
+  U.sort((a,b)=>(frD(b.se.date)||'').localeCompare(frD(a.se.date)||''));
+  let h='';
+  if(P.length)h+='<div class="kr"><div class="kh">Produit'+(P.length>1?'s':'')+'</div>'+P.map(x=>{const[c,t]=x.arch?['arc','Archivé']:expState(x);return '<div class="ki"><span class="kt"><b>'+esc(x.ref)+'</b><small>'+esc(KT[x.type]||'')+' · lot '+esc(x.lot)+(x.exp?' · péremption '+pd(x.exp).toLocaleDateString('fr-FR'):'')+'</small></span><span class="pill '+c+'">'+(x.arch?'Archivé':(c==='ok'||!c?'En stock':t))+'</span></div>'}).join('')+'</div>';
+  h+='<div class="kr"><div class="kh">'+(U.length?'Utilisé dans '+U.length+' séance'+(U.length>1?'s':''):'Aucune séance trouvée avec ce lot')+'</div>'+U.map((u,k)=>'<button type="button" class="kuse" data-id="'+esc(u.f.id)+'"><span class="dt">'+esc(u.se.date||'')+'</span><span><b>'+esc((u.f.prenom||'')+' '+(u.f.nom||''))+'</b><small>'+esc(u.hit.join(' — '))+'</small></span><i>›</i></button>').join('')+'</div>';
+  out.innerHTML=h;out.querySelectorAll('.kuse').forEach(b=>b.onclick=()=>showDetail(b.dataset.id))}
+$('kSearch').addEventListener('input',()=>{clearTimeout(kST);kST=setTimeout(kSearchRun,180)});
 </script>
 </body>
 </html>
