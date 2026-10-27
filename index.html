@@ -3293,7 +3293,7 @@ new MutationObserver(()=>{if(!$('s7').hidden)renderIcPick()}).observe($('s7'),{a
 
 ICSTY.splice(3,0,['platre','Plâtre','Relief moulé dans la matière du style'],['platrec','Plâtre couleur','Relief moulé dans tes couleurs'],['platreu','Plâtre couleur unique','Relief dans ta couleur principale']);renderIcPick();try{styleIcons()}catch(e){}
 // ================= sauvegarde / restauration =================
-const BK_STORES=['fiches','rdv','todo','stock'],BK_SKIP=[PK,SK,'lastbk'];
+const BK_STORES=['fiches','rdv','todo','stock','dasri','fourn'],BK_SKIP=[PK,SK,'lastbk'];
 const b64e=u8=>{let s='';for(let i=0;i<u8.length;i+=32768)s+=String.fromCharCode.apply(null,u8.subarray(i,i+32768));return btoa(s)};
 const b64d=t=>{const s=atob(t),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u};
 async function bkEnc(v){
@@ -3335,7 +3335,7 @@ $('bkFile').onchange=async()=>{const f=$('bkFile').files[0];if(!f)return;let B;
   try{B=JSON.parse(await f.text())}catch(e){return msg('Ce fichier n’est pas une sauvegarde valide.',1)}
   if(!B||B.app!=='consentement-backup'||!B.stores)return msg('Ce fichier n’est pas une sauvegarde de l’application.',1);
   const d=new Date(B.date),cnt=k=>(B.stores[k]||[]).length;
-  msg('',0,'<div><b>Restaurer la sauvegarde du '+d.toLocaleDateString('fr-FR')+' ?</b><br>'+(B.fiches||0)+' fiche(s), '+cnt('rdv')+' rendez-vous, '+cnt('todo')+' projet(s), '+cnt('stock')+' produit(s).<br><span style="color:var(--err)">Les données actuelles de l’appli seront remplacées.</span></div><div style="display:flex;gap:20px;margin-top:10px"><button id="bkOk" class="lnk" type="button" style="color:var(--gold);font-weight:700">Restaurer</button><button id="bkNo" class="lnk" type="button" style="color:var(--mut)">Annuler</button></div>');
+  msg('',0,'<div><b>Restaurer la sauvegarde du '+d.toLocaleDateString('fr-FR')+' ?</b><br>'+(B.fiches||0)+' fiche(s), '+cnt('rdv')+' rendez-vous, '+cnt('todo')+' projet(s), '+cnt('stock')+' produit(s), '+cnt('dasri')+' bordereau(x) DASRI, '+cnt('fourn')+' fourniture(s).<br><span style="color:var(--err)">Les données actuelles de l’appli seront remplacées.</span></div><div style="display:flex;gap:20px;margin-top:10px"><button id="bkOk" class="lnk" type="button" style="color:var(--gold);font-weight:700">Restaurer</button><button id="bkNo" class="lnk" type="button" style="color:var(--mut)">Annuler</button></div>');
   $('bkNo').onclick=()=>msg('');
   $('bkOk').onclick=async()=>{try{msg('Restauration en cours…');const db=await idb();
       for(const st of BK_STORES){if(!db.objectStoreNames.contains(st)||!B.stores[st])continue;const rows=bkDec(B.stores[st]);
